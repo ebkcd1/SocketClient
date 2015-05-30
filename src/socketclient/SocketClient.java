@@ -13,33 +13,31 @@ public class SocketClient {
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter server hostname: ");
         serverHost = scan.nextLine();
-               
+        int pid =6544;
         
         if (args.length > 0)
            serverHost = args[0];
         System.out.println ("Attemping to connect to host " +
-		serverHost + " on port 25000.");
+		serverHost + " on port "+ pid +".");
 
         Socket netSocket = null;
         PrintWriter out = null;
         BufferedReader in = null;
 
         try {
-            netSocket = new Socket(serverHost, 25000);
+            netSocket = new Socket(serverHost, pid);
             out = new PrintWriter(netSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(
-                                        netSocket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(netSocket.getInputStream()));
         } catch (UnknownHostException e) {
             System.err.println("Cannot connect to host: " + serverHost);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Could not get I/O for "
-                               + "the connection to: " + serverHost);
+            System.err.println("Could not get I/O for " 
+                    + "the connection to: " + serverHost);
             System.exit(1);
         }
 
-	BufferedReader stdIn = new BufferedReader(
-                                   new InputStreamReader(System.in));
+	BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 	String userInput;
 
         System.out.println("Enter a command: ");
