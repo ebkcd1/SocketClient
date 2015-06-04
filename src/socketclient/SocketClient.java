@@ -60,10 +60,14 @@ public class SocketClient {
                 boolean check = isNumeric(userInput);
                 if(check){
                     select = Integer.parseInt(userInput);
+                    
+                    if(in.readLine() != null && !in.readLine().isEmpty()){
                     out.println(select);
                     System.out.println("echo: " + in.readLine());
                     System.out.println(in.readLine());
-                }
+                    }
+                }//end if check
+                
                 else{
                     System.out.println("Please enter a number between 1 and 7");
                 }
