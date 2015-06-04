@@ -58,28 +58,29 @@ public class SocketClient {
                     
                 userInput = scan.next();
                 boolean check = isNumeric(userInput);
-                if(check){
+                if(check && select != 7){
                     select = Integer.parseInt(userInput);
-                    
-                    if(in.readLine() != null && !in.readLine().isEmpty()){
+                    String line= in.readLine();
+                    while(!(line.equals("bye"))){
                     out.println(select);
                     System.out.println("echo: " + in.readLine());
                     System.out.println(in.readLine());
                     }
+                    
                 }//end if check
                 
                 else{
                     System.out.println("Please enter a number between 1 and 7");
                 }
-
+            if(select == 7){
+                out.close();
+                in.close();
+                //stdIn.close();
+                netSocket.close();
+            }
         } while (select > 0 || select <= 6);
        
-        if(select == 7){
-        out.close();
-        in.close();
-        //stdIn.close();
-        netSocket.close();
-        }
+        
     }
 
     public static int displayMenu() throws IOException {
