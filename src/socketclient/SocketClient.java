@@ -55,18 +55,18 @@ public class SocketClient {
             System.out.println("5.  Host current users");
             System.out.println("6.  Host running processes");
             System.out.println("7.  Quit");
-
-            try {
+                    
                 userInput = scan.next();
-                select = Integer.parseInt(userInput);
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a number between 1-7");
-            }
-            //String userInput = stdIn.readLine();
-            out.println(userInput);
-            System.out.println("echo: " + in.readLine());
-            System.out.println(in.readLine());
-            System.out.println(in.readLine());
+                boolean check = isNumeric(userInput);
+                if(check){
+                    select = Integer.parseInt(userInput);
+                    out.println(select);
+                    System.out.println("echo: " + in.readLine());
+                    System.out.println(in.readLine());
+                }
+                else{
+                    System.out.println("Please enter a number between 1 and 7");
+                }
 
         } while (select > 0 || select <= 6);
        
@@ -99,6 +99,17 @@ public class SocketClient {
             System.out.println("Please enter a number between 1-7");
         }
         return select;
+    }
+    public static boolean isNumeric(String input){
+        
+            try{
+                int select = Integer.parseInt(input);
+                }
+                catch(NumberFormatException nfe){
+                    return false;
+                }
+            
+        return true;
     }
     /**
      * public static String sendCommand(String serverHost,int pid,int cmd){
