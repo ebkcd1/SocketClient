@@ -63,8 +63,7 @@ public class SocketClient {
                     String line= in.readLine();
                     while(!(line.equals("bye"))){
                     out.println(select);
-                    System.out.println("echo: " + in.readLine());
-                    System.out.println(in.readLine());
+                    System.out.println(line);
                     }
                     
                 }//end if check
