@@ -17,7 +17,7 @@ public class SocketClient implements Runnable {
     private static PrintWriter out = null;
     private static BufferedReader in = null;
     private static long total;
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException,InterruptedException {
 
         //String serverHost;
         Scanner scan = new Scanner(System.in);
@@ -58,6 +58,7 @@ public class SocketClient implements Runnable {
                 //starts the threads
                 for (int x = 0; x < numOfClients; x++) {
                     clients[x].start();
+                    clients[x].join();
                 }
                 try {
                     Thread.sleep(200);
