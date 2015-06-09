@@ -12,16 +12,19 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
-public class SocketClient {
-
+public class SocketClient implements Runnable{
+    private static String serverHost;
+    private static int pid = 6544;
+    private static int select = 0;
+    
     public static void main(String[] args) throws IOException {
 
-        String serverHost;
+        //String serverHost;
 
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter server hostname: ");
         serverHost = scan.nextLine();
-        int pid = 6544;
+        //int pid = 6544;
         System.out.println("Enter the number of Clients");
         int numOfClients = scan.nextInt();
         if (args.length > 0) {
@@ -29,11 +32,11 @@ public class SocketClient {
         }
         System.out.println("Attemping to connect to host "
                 + serverHost + " on port " + pid + ".");
-
+/*
         Socket netSocket = null;
         PrintWriter out = null;
         BufferedReader in = null;
-       for(int x = 0; x<= numOfClients;x++){
+       
         try {
             netSocket = new Socket(serverHost, pid);
             out = new PrintWriter(netSocket.getOutputStream(), true);
@@ -46,28 +49,24 @@ public class SocketClient {
                     + "the connection to: " + serverHost);
             System.exit(1);
         }
-       
-        String userInput = "";
-        int select = 0;
-        //BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+        */
         do {
-       
-            System.out.println("Enter a command: ");
-            System.out.println("1.  Host current Date and Time");
-            System.out.println("2.  Host uptime");
-            System.out.println("3.  Host memory use");
-            System.out.println("4.  Host Netstat");
-            System.out.println("5.  Host current users");
-            System.out.println("6.  Host running processes");
-            System.out.println("7.  Quit");
+             select = displayMenu();
+
+            if(select >= 1 && select < 7){
                 
-            userInput = scan.next();
-            boolean check = isNumeric(userInput);
-            String output;
-            if(check){
-                if(select != 7){
-                select = Integer.parseInt(userInput);
-                out.println(select);      
+                    
+                Thread clients[] = new Thread[numOfClients]; //creates the client threads array
+                //delcares the client threads
+                for(int i =0; i < numOfClients; i++){
+                    clients[i] = new Thread(new SocketClient());
+                }
+                //starts the threads
+                for(int x =0; x < numOfClients; x++){
+                    clients[x].start();
+                }
+                
+              /*  out.println(select);      
                 String line;
                 line = in.readLine();
                 while(!(line.equals("bye"))){
@@ -77,30 +76,22 @@ public class SocketClient {
                     if(line.equals("Goodbye!")){
                     System.exit(1);
                     }
-                } 
+                } */
                
-                }// end if select != 7
-         else if(select == 7){    
-                out.close();
-                in.close();
-                //stdIn.close();
-                netSocket.close();
-                System.exit(1);
-                } 
-            
-                    
+               
+  
             }//end if check
                 
                 else{
                     System.out.println("Please enter a number between 1 and 7");
                 }
 
-        } while (select > 0 || select <= 6);
-       }
+        } while (select != 7);
+       
         
     }
 
-    public static boolean isNumeric(String input){
+    /*public static boolean isNumeric(String input){
         
             try{
                 int select = Integer.parseInt(input);
@@ -110,6 +101,65 @@ public class SocketClient {
                 }
             
         return true;
-    }
+    }*/
+    public static void command(int select, int port, String host) throws IOException{
+    Socket netSocket = new Socket(serverHost, pid);
+    PrintWriter out = new PrintWriter(netSocket.getOutputStream(), true);
+    BufferedReader in = new BufferedReader(new InputStreamReader(netSocket.getInputStream()));
+  
+        out.println(select);
+        String line = in.readLine();
+        
+       while(line != null){
+           
+           System.out.println(line + "\n");
+           line = in.readLine();
+       }
+       //out.close();
+       //netSocket.close();
+        }// end command()
+    
+public static int displayMenu() throws IOException {
+    
+    boolean x = true;
+    Scanner scan = new Scanner(System.in);
+    String userInput = "";
+        do{
+        System.out.println("Enter a command: ");
+        System.out.println("1.  Host current Date and Time");
+        System.out.println("2.  Host uptime");
+        System.out.println("3.  Host memory use");
+        System.out.println("4.  Host Netstat");
+        System.out.println("5.  Host current users");
+        System.out.println("6.  Host running processes");
+        System.out.println("7.  Quit");
+        
+        try{
+            userInput = scan.next();
+            select = Integer.parseInt(userInput);
+        }
+        catch(NumberFormatException e){
+            System.out.println("Please enter a number between 1-7");
+            x = false;
+        }
+        if(select > 7 || select <=0){
+            System.out.println("Pick a number between 1 and 7.");
+            x = false;
+        }
+        }while(!x);
+        return select;
+               
+    }// end displayMenu()
 
-}
+
+
+    @Override
+    public void run(){
+       try{
+            command(select,pid,serverHost);
+        }
+        catch(IOException io){
+        io.printStackTrace();
+        }
+    }//end run()
+}//end SocketClient class
