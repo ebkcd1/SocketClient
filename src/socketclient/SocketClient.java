@@ -17,15 +17,15 @@ public class SocketClient implements Runnable {
     private static PrintWriter out = null;
     private static BufferedReader in = null;
     private static long total;
-    public static void main(String[] args) throws IOException,InterruptedException {
+    private static double avg;
+    private static int finishedThreads = 0;
 
-        //String serverHost;
+    public static void main(String[] args) throws IOException, InterruptedException {
+
         Scanner scan = new Scanner(System.in);
         System.out.println("Enter server hostname: ");
         serverHost = scan.nextLine();
-        //int pid = 6544;
-        System.out.println("Enter the number of Clients");
-        int numOfClients = scan.nextInt();
+
         if (args.length > 0) {
             serverHost = args[0];
         }
@@ -46,53 +46,67 @@ public class SocketClient implements Runnable {
         }
 
         do {
+
+            System.out.println("Enter the number of Clients");
+            int numOfClients = scan.nextInt();
+            out.println(numOfClients);
             select = displayMenu();
-            long avg;
+
             if (select >= 1 && select < 7) {
 
-                Thread clients[] = new Thread[numOfClients]; //creates the client threads array
-                //delcares the client threads
+                //creates the client threads array 
+                Thread clients[] = new Thread[numOfClients];
+
+                //delcares the client threads 
                 for (int i = 0; i < numOfClients; i++) {
                     clients[i] = new Thread(new SocketClient());
                 }
-                //starts the threads
+
+                //starts the threads 
                 for (int x = 0; x < numOfClients; x++) {
                     clients[x].start();
-                    clients[x].join();
                 }
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {}
-                avg = total / numOfClients;
-               System.out.println("Response time: " + avg + " ms");
-               avg = 0;
-               total = 0;
-               select=0;
-            }//end if check
-            
+                while (finishedThreads != numOfClients) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                    }
+                }
 
+                avg = total / (double)numOfClients;
+                System.out.println("Total Response Time:" + total + " for " + numOfClients + " clients.");
+                System.out.println("Average Response time: " + avg + " ms");
+                avg = 0;
+                total = 0;
+                select = 0;
+                finishedThreads = 0;
+            }//end if check
+            else{
+                System.out.println("");
+            }
         } while (select != 7);
-        
+
     }
 
     public static void command(int select) throws IOException {
         long start = System.currentTimeMillis();
+        long response = 0;
+
         out.println(select);
         String line = in.readLine();
-        long response;
-        
-        while (line != null) {
 
+        while (line != null && !line.equals("bye")) {
+            
+            
             System.out.print(line + "\n");
             line = in.readLine();
             
         }
-        out.close();
-        netSocket.close();
         long end = System.currentTimeMillis();
         response = end - start;
-        
+
         total = response + total;
+        finishedThreads++;
     }// end command()
 
     public static int displayMenu() throws IOException {
