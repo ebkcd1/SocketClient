@@ -13,9 +13,6 @@ public class SocketClient implements Runnable {
     private static String serverHost;
     private static int pid = 6544;
     private static int select = 0;
-    private static Socket netSocket = null;
-    private static PrintWriter out = null;
-    private static BufferedReader in = null;
     private static long total;
     private static double avg;
     private static int finishedThreads = 0;
@@ -26,30 +23,14 @@ public class SocketClient implements Runnable {
         System.out.println("Enter server hostname: ");
         serverHost = scan.nextLine();
 
-        if (args.length > 0) {
-            serverHost = args[0];
-        }
         System.out.println("Attemping to connect to host "
                 + serverHost + " on port " + pid + ".");
-
-        try {
-            netSocket = new Socket(serverHost, pid);
-            out = new PrintWriter(netSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(netSocket.getInputStream()));
-        } catch (UnknownHostException e) {
-            System.err.println("Cannot connect to host: " + serverHost);
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Could not get I/O for "
-                    + "the connection to: " + serverHost);
-            System.exit(1);
-        }
 
         do {
 
             System.out.println("Enter the number of Clients");
             int numOfClients = scan.nextInt();
-            out.println(numOfClients);
+
             select = displayMenu();
 
             if (select >= 1 && select < 7) {
@@ -68,12 +49,12 @@ public class SocketClient implements Runnable {
                 }
                 while (finishedThreads != numOfClients) {
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(2000);
                     } catch (InterruptedException e) {
                     }
                 }
 
-                avg = total / (double)numOfClients;
+                avg = total / (double) numOfClients;
                 System.out.println("Total Response Time:" + total + " for " + numOfClients + " clients.");
                 System.out.println("Average Response time: " + avg + " ms");
                 avg = 0;
@@ -81,32 +62,42 @@ public class SocketClient implements Runnable {
                 select = 0;
                 finishedThreads = 0;
             }//end if check
-            else{
+            else {
                 System.out.println("");
             }
         } while (select != 7);
 
-    }
+    }//End of main
 
     public static void command(int select) throws IOException {
         long start = System.currentTimeMillis();
         long response = 0;
+        Socket netSocket = null;
+        PrintWriter outStream = null;
+        BufferedReader inStream = null;
 
-        out.println(select);
-        String line = in.readLine();
+        netSocket = new Socket(serverHost, pid);
+        outStream = new PrintWriter(netSocket.getOutputStream(), true);
+        inStream = new BufferedReader(new InputStreamReader(netSocket.getInputStream()));
+
+        outStream.println(select);
+        String line = inStream.readLine();
 
         while (line != null && !line.equals("bye")) {
-            
-            
+
             System.out.print(line + "\n");
-            line = in.readLine();
-            
+            line = inStream.readLine();
+
         }
+        
         long end = System.currentTimeMillis();
         response = end - start;
 
         total = response + total;
         finishedThreads++;
+        netSocket.close();
+        outStream.close();
+        inStream.close();
     }// end command()
 
     public static int displayMenu() throws IOException {
